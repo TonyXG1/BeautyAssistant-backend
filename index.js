@@ -3,6 +3,8 @@ import db from "./db.js";
 import bodyParser from "body-parser";
 import cors from "cors";
 import loginRegister from "./routes/loginRegister.js";
+import { createServer } from "http";
+import { initializeChat } from "./chat.js";
 
 const app = express();
 const PORT = 3005;
@@ -19,6 +21,9 @@ app.use(
 );
 
 app.use("/auth", loginRegister);
+
+const server = createServer(app);
+initializeChat(server);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -77,22 +82,48 @@ app.get("/makeupRoutine", (req, res) => {
       END
     )
     WHERE u.id = ?;`;
-    
+
     db.query(sql, [id], (err, results) => {
-        if(err) {
-            console.log(err);
-            return res.status(500).json({ error: err.message });
-        }
-        if(results.length === 0 ) {
-            return res.status(401).json({ error: "Няма подходящ грим!" });
-        }
-        console.log(results[0]);
-        return res.status(200).json({ makeup: results[0] });
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ error: err.message });
+      }
+      if (results.length === 0) {
+        return res.status(401).json({ error: "Няма подходящ грим!" });
+      }
+      console.log(results[0]);
+      return res.status(200).json({ makeup: results[0] });
     });
   } catch (error) {
     console.log(error.message);
   }
-  
+});
+
+app.post("/setReminders", (req, res) => {
+  const { userId, reminders } = req.body;
+  // console.log(userId);
+  // console.log(reminders);
+
+  try {
+    const updateSql =
+      "UPDATE users SET morningReminder = ?, nightReminder = ? WHERE id = ?;";
+    db.query(
+      updateSql,
+      [reminders.morningReminder, reminders.nightReminder, userId],
+      (err, results) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ error: err.message });
+        }
+        console.log(`Reminders updated for user ID: ${userId}`);
+        return res
+          .status(200)
+          .json({ message: "Reminders updated succesfully!" });
+      }
+    );
+  } catch (error) {
+    console.log(error.message);
+  }
 });
 
 app.listen(PORT, () => {

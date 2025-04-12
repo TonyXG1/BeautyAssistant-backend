@@ -15,7 +15,9 @@ CREATE TABLE users (
     faceShape ENUM('oval', 'circle', 'square') NOT NULL,
     eyeColor ENUM('brown', 'blue', 'green') NOT NULL,
     hairColor ENUM('black', 'brown', 'blonde') NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    morningReminder TIME,
+    nightReminder TIME,
 );
 
 CREATE TABLE skinRoutineTips (
