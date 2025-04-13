@@ -126,6 +126,39 @@ app.post("/setReminders", (req, res) => {
   }
 });
 
+app.get("/reminders", (req, res) => {
+  const userId = req.query.userId;
+  if (!userId) {
+    return res.status(400).json({ error: "userId is required" });
+  }
+  try {
+    const sql = "SELECT morningReminder, nightReminder FROM users WHERE id = ?";
+    db.query(sql, [userId], (err, results) => {
+      if (err) {
+        console.log(err.message);
+        return res.status(500).json({ error: err.message });
+      }
+      if (results.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      const user = results[0];
+      console.log("Morning Reminder:", user.morningReminder);
+      console.log("Night Reminder:", user.nightReminder);
+      return res.status(200).json({
+        morningReminder: user.morningReminder
+          ? user.morningReminder.slice(0, 5)
+          : null,
+        nightReminder: user.nightReminder
+          ? user.nightReminder.slice(0, 5)
+          : null,
+      });
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ error: "Server error" });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
