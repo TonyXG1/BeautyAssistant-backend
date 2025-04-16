@@ -27,17 +27,14 @@ export const initializeChat = (server) => {
 
     socket.emit("previousMessages", messages);
 
-    // Listen for chat messages
     socket.on("sendMessage", (message) => {
       console.log("Message received:", message);
 
       messages.push(message);
 
-      // Broadcast the message to all connected clients
       io.emit("receiveMessage", message);
     });
 
-    // Handle user disconnect
     socket.on("disconnect", () => {
       const username = users[socket.id];
       console.log("A user disconnected:", socket.id);

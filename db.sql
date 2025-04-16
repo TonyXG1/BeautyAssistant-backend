@@ -44,6 +44,8 @@ AND srt.ageGroup = (
     WHERE id = 1 -- replace with user's id
 );
 
+
+
 -- Makeup
 CREATE TABLE makeupTips (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -52,25 +54,27 @@ CREATE TABLE makeupTips (
     faceShape ENUM('oval', 'circle', 'square') NOT NULL,
     eyeColor ENUM('brown', 'blue', 'green') NOT NULL,
     hairColor ENUM('black', 'brown', 'blonde') NOT NULL,
+    experience ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
     everyDayMakeup TEXT NOT NULL,
     nightMakeup TEXT NOT NULL,
     weddingMakeup TEXT NOT NULL
 );
 
-INSERT INTO makeupTips (ageGroup, skinTone, faceShape, eyeColor, hairColor, everyDayMakeup, nightMakeup, weddingMakeup)
+INSERT INTO makeupTips (ageGroup, skinTone, faceShape, eyeColor, hairColor, experience, everyDayMakeup, nightMakeup, weddingMakeup)
 SELECT 
     a.ageGroup,
     s.skinTone,
     f.faceShape,
     e.eyeColor,
     h.hairColor,
+    x.experience,
     CONCAT(
         '1. Нанеси ', 
-        CASE s.skinTone 
-            WHEN 'fair' THEN 'лек фон дьо тен' 
-            WHEN 'medium' THEN 'фон дьо тен със среден тон' 
-            WHEN 'dark' THEN 'фон дьо тен с тъмен тон' 
-        END,
+        CASE x.experience 
+            WHEN 'beginner' THEN 'лек BB крем' 
+            WHEN 'intermediate' THEN 'фон дьо тен със средно покритие' 
+            WHEN 'advanced' THEN 'фон дьо тен с високо покритие' 
+        END, ' за ', s.skinTone, ' кожа',
         '\n2. ', 
         CASE f.faceShape 
             WHEN 'oval' THEN 'Подчертай овалното лице с лек руж' 
@@ -91,7 +95,12 @@ SELECT
         END
     ) AS everyDayMakeup,
     CONCAT(
-        '1. Нанеси фон дьо тен с пълно покритие',
+        '1. Нанеси фон дьо тен с ',
+        CASE x.experience 
+            WHEN 'beginner' THEN 'леко покритие' 
+            WHEN 'intermediate' THEN 'пълно покритие' 
+            WHEN 'advanced' THEN 'високо покритие и хайлайтър' 
+        END,
         '\n2. ', 
         CASE f.faceShape 
             WHEN 'oval' THEN 'Добави леко контуриране' 
@@ -139,7 +148,8 @@ FROM
     (SELECT 'fair' AS skinTone UNION SELECT 'medium' UNION SELECT 'dark') s,
     (SELECT 'oval' AS faceShape UNION SELECT 'circle' UNION SELECT 'square') f,
     (SELECT 'brown' AS eyeColor UNION SELECT 'blue' UNION SELECT 'green') e,
-    (SELECT 'black' AS hairColor UNION SELECT 'brown' UNION SELECT 'blonde') h;
+    (SELECT 'black' AS hairColor UNION SELECT 'brown' UNION SELECT 'blonde') h,
+    (SELECT 'beginner' AS experience UNION SELECT 'intermediate' UNION SELECT 'advanced') x;
 
 SELECT mt.everyDayMakeup, mt.nightMakeup, mt.weddingMakeup
 FROM users u
@@ -148,6 +158,7 @@ JOIN makeupTips mt
   AND mt.faceShape = u.faceShape
   AND mt.eyeColor = u.eyeColor
   AND mt.hairColor = u.hairColor
+  AND mt.experience = u.experience
   AND mt.ageGroup = (
       CASE
           WHEN u.age BETWEEN 16 AND 25 THEN '16-25'
@@ -157,3 +168,5 @@ JOIN makeupTips mt
       END
   )
 WHERE u.id = 1; -- replace with user's id
+
+

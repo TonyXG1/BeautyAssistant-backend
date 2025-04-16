@@ -55,7 +55,7 @@ app.get("/skinRoutine", (req, res) => {
       if (results.length === 0) {
         return res.status(401).json({ error: "Няма подходяща рутина!" });
       }
-      console.log(results[0]);
+      // console.log(results[0]);
       return res.status(200).json({ routine: results[0] });
     });
   } catch (error) {
@@ -70,18 +70,19 @@ app.get("/makeupRoutine", (req, res) => {
     FROM users u
     JOIN makeupTips mt 
       ON mt.skinTone = u.skinTone
-        AND mt.faceShape = u.faceShape
-        AND mt.eyeColor = u.eyeColor
-        AND mt.hairColor = u.hairColor
-        AND mt.ageGroup = (
-      CASE
-          WHEN u.age BETWEEN 16 AND 25 THEN '16-25'
-          WHEN u.age BETWEEN 26 AND 40 THEN '26-40'
-          WHEN u.age BETWEEN 41 AND 60 THEN '41-60'
-          WHEN u.age BETWEEN 61 AND 100 THEN '61-100'
-      END
-    )
-    WHERE u.id = ?;`;
+      AND mt.faceShape = u.faceShape
+      AND mt.eyeColor = u.eyeColor
+      AND mt.hairColor = u.hairColor
+      AND mt.experience = u.experience
+      AND mt.ageGroup = (
+        CASE
+            WHEN u.age BETWEEN 16 AND 25 THEN '16-25'
+            WHEN u.age BETWEEN 26 AND 40 THEN '26-40'
+            WHEN u.age BETWEEN 41 AND 60 THEN '41-60'
+            WHEN u.age BETWEEN 61 AND 100 THEN '61-100'
+        END
+        )
+        WHERE u.id = ?;`;
 
     db.query(sql, [id], (err, results) => {
       if (err) {
@@ -91,7 +92,7 @@ app.get("/makeupRoutine", (req, res) => {
       if (results.length === 0) {
         return res.status(401).json({ error: "Няма подходящ грим!" });
       }
-      console.log(results[0]);
+      // console.log(results[0]);
       return res.status(200).json({ makeup: results[0] });
     });
   } catch (error) {
@@ -142,8 +143,8 @@ app.get("/reminders", (req, res) => {
         return res.status(404).json({ error: "User not found" });
       }
       const user = results[0];
-      console.log("Morning Reminder:", user.morningReminder);
-      console.log("Night Reminder:", user.nightReminder);
+      // console.log("Morning Reminder:", user.morningReminder);
+      // console.log("Night Reminder:", user.nightReminder);
       return res.status(200).json({
         morningReminder: user.morningReminder
           ? user.morningReminder.slice(0, 5)
